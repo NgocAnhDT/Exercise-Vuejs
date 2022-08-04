@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
@@ -13,7 +15,9 @@ class PostController extends Controller
      */
     public function index()
     {
-        //
+        $posts = Post::with('user', 'comments')->get();
+        
+        return response()->json($posts);
     }
 
     /**
@@ -34,7 +38,18 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $result = Post::create([
+            'content' => $request->content,
+            'user_id' => Auth::id(),
+        ]);
+        if ($result) {
+            return response()->json([
+                'success' => 'Successfully',
+                'post' => Post::with('user')->find($result->id),
+            ]);
+        } else {
+            return response()->json('Something went wrong');
+        }
     }
 
     /**
